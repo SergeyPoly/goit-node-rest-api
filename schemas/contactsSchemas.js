@@ -1,13 +1,21 @@
 import Joi from "joi";
 
 export const createContactSchema = Joi.object({
-  name: Joi.string().trim().min(1).required(),
-  email: Joi.string().trim().email().required(),
-  phone: Joi.string().trim().min(1).required(),
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().required(),
+  favorite: Joi.boolean(),
 });
 
 export const updateContactSchema = Joi.object({
-  name: Joi.string().trim().min(1),
-  email: Joi.string().trim().email(),
-  phone: Joi.string().trim().min(1),
+  name: Joi.string(),
+  email: Joi.string().email(),
+  phone: Joi.string(),
+  favorite: Joi.boolean(),
 }).min(1);
+
+export const updateFavoriteSchema = Joi.object({
+  favorite: Joi.boolean().required().messages({
+    "any.required": "missing field favorite",
+  }),
+});
