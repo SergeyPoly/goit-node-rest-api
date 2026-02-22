@@ -1,26 +1,42 @@
 import Contact from "../models/Contact.js";
 
-export const listContacts = () => Contact.findAll();
+export const listContacts = async (ownerId, query = {}) => {
+  const { page = 1, limit = 20, favorite } = query;
+  const offset = (page - 1) * limit;
 
-export const getContactById = (contactId) => Contact.findByPk(contactId);
+  const where = { owner: ownerId };
+  if (favorite !== undefined) {
+    where.favorite = favorite;
+  }
 
-export const removeContact = async (contactId) => {
-  const contact = await Contact.findByPk(contactId);
+  return await Contact.findAll({
+    where,
+    limit: Number(limit),
+    offset: Number(offset),
+  });
+};
+
+export const getContactById = (id, ownerId) =>
+  Contact.findOne({ where: { id, owner: ownerId } });
+
+export const removeContact = async (contactId, ownerId) => {
+  const contact = await Contact.findOne({ where: { id: contactId, owner: ownerId } });
   if (!contact) return null;
 
   await contact.destroy();
   return contact;
 };
 
-export const addContact = (data) => Contact.create(data);
+export const addContact = (data, ownerId) =>
+  Contact.create({ ...data, owner: ownerId });
 
-export const updateContact = async (contactId, data) => {
-  const contact = await Contact.findByPk(contactId);
+export const updateContact = async (contactId, ownerId, data) => {
+  const contact = await Contact.findOne({ where: { id: contactId, owner: ownerId } });
   if (!contact) return null;
 
   return await contact.update(data);
 };
 
-export const updateStatusContact = (contactId, favorite) => {
-  return updateContact(contactId, { favorite });
+export const updateStatusContact = (contactId, ownerId, favorite) => {
+  return updateContact(contactId, ownerId, { favorite });
 };
