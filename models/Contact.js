@@ -32,7 +32,7 @@ const Contact = sequelize.define(
   },
   {
     timestamps: false,
-  },
+  }
 );
 
 User.hasMany(Contact, { foreignKey: "owner" });

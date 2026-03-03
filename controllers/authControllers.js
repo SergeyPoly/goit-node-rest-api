@@ -2,8 +2,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
+import gravatar from "gravatar";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { Jimp } from "jimp";
 
 const { JWT_SECRET } = process.env;
+const avatarsDir = path.resolve("public", "avatars");
 
 export const register = async (req, res, next) => {
   try {
@@ -11,7 +16,9 @@ export const register = async (req, res, next) => {
     const user = await User.findOne({ where: { email } });
     if (user) throw HttpError(409, "Email in use");
 
-    const newUser = await User.create(req.body);
+    const avatarURL = gravatar.url(email, { s: "250", d: "identicon" }, true);
+
+    const newUser = await User.create({ ...req.body, avatarURL });
     res.status(201).json({
       user: { email: newUser.email, subscription: newUser.subscription },
     });
@@ -68,6 +75,31 @@ export const updateSubscription = async (req, res, next) => {
       subscription: updatedUser.subscription,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+export const updateAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) throw HttpError(400, "File is required");
+
+    const { id: userId } = req.user;
+    const { path: tempUpload, originalname } = req.file;
+
+    const filename = `${userId}_${originalname}`;
+    const resultUpload = path.join(avatarsDir, filename);
+
+    const image = await Jimp.read(tempUpload);
+    image.resize({ w: 250, h: 250 });
+    await image.write(tempUpload);
+    await fs.rename(tempUpload, resultUpload);
+
+    const avatarURL = `/avatars/${filename}`;
+    await req.user.update({ avatarURL });
+
+    res.json({ avatarURL });
+  } catch (error) {
+    if (req.file) await fs.unlink(req.file.path);
     next(error);
   }
 };
