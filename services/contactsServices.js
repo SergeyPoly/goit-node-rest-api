@@ -16,8 +16,7 @@ export const listContacts = async (ownerId, query = {}) => {
   });
 };
 
-export const getContactById = (id, ownerId) =>
-  Contact.findOne({ where: { id, owner: ownerId } });
+export const getContactById = (id, ownerId) => Contact.findOne({ where: { id, owner: ownerId } });
 
 export const removeContact = async (contactId, ownerId) => {
   const contact = await Contact.findOne({ where: { id: contactId, owner: ownerId } });
@@ -27,8 +26,7 @@ export const removeContact = async (contactId, ownerId) => {
   return contact;
 };
 
-export const addContact = (data, ownerId) =>
-  Contact.create({ ...data, owner: ownerId });
+export const addContact = (data, ownerId) => Contact.create({ ...data, owner: ownerId });
 
 export const updateContact = async (contactId, ownerId, data) => {
   const contact = await Contact.findOne({ where: { id: contactId, owner: ownerId } });
