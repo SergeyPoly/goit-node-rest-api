@@ -22,9 +22,7 @@ describe("Test login controller", () => {
   });
 
   test("Login should return 200, token and user object", async () => {
-    const response = await request(app)
-      .post("/api/auth/login")
-      .send(testUser);
+    const response = await request(app).post("/api/auth/login").send(testUser);
 
     expect(response.status).toBe(200);
     expect(response.body.token).toBeDefined();
