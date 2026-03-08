@@ -21,3 +21,7 @@ export const updateSubscriptionSchema = Joi.object({
     "any.only": "Subscription must be one of ['starter', 'pro', 'business']",
   }),
 });
+
+export const emailSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
